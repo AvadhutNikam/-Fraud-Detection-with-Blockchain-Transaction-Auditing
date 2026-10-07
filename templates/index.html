@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEGIS // AI Fraud Detection & Blockchain Transaction Auditing</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css?v=2.0">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="app-header py-3">
+        <div class="container-fluid px-lg-5 d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <!-- Brand -->
+            <div class="d-flex align-items-center gap-3">
+                <div class="brand-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fs-5 fw-extrabold tracking-wide text-white font-mono">AEGIS</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono" style="font-size: 0.68rem;">v2.4 EVM</span>
+                    </div>
+                    <div class="text-secondary small" style="font-size: 0.75rem;">AI Fraud Detection & Blockchain Transaction Auditing</div>
+                </div>
+            </div>
+
+            <!-- Segmented Tab Navigation -->
+            <ul class="nav nav-segmented" id="mainTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="tab-new" data-bs-toggle="tab" data-bs-target="#pane-new" type="button">
+                        <i class="fa-solid fa-bolt me-1 text-cyan"></i> New Transaction
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="tab-ledger" data-bs-toggle="tab" data-bs-target="#pane-ledger" type="button" onclick="loadTransactions()">
+                        <i class="fa-solid fa-cubes me-1"></i> Audit Ledger
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="tab-verify" data-bs-toggle="tab" data-bs-target="#pane-verify" type="button">
+                        <i class="fa-solid fa-fingerprint me-1"></i> Tamper & Verification Lab
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="tab-contract" data-bs-toggle="tab" data-bs-target="#pane-contract" type="button">
+                        <i class="fa-solid fa-file-code me-1"></i> Smart Contract
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Live Indicators -->
+            <div class="d-none d-xl-flex align-items-center gap-2">
+                <div class="system-pill d-flex align-items-center gap-2">
+                    <div class="pulse-dot"></div>
+                    <span class="text-white-50" id="headerNetworkLabel">Simulated EVM Ledger</span>
+                </div>
+                <div class="system-pill d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-brain text-info"></i>
+                    <span class="text-white-50">Random Forest (Balanced)</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container-fluid px-lg-5 py-4">
+
+        <!-- Top Stat Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel stat-widget cyan">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small fw-semibold">TOTAL AUDITED</div>
+                            <h2 class="fw-bold mt-1 mb-0 font-mono text-white" id="stat-total">0</h2>
+                        </div>
+                        <div class="stat-icon-wrapper cyan">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2 d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-link text-info"></i> Fingerprinted on-chain
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel stat-widget emerald">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small fw-semibold">LEGITIMATE CLEARED</div>
+                            <h2 class="fw-bold mt-1 mb-0 font-mono text-success" id="stat-legit">0</h2>
+                        </div>
+                        <div class="stat-icon-wrapper emerald">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2 d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-shield-check text-success"></i> Normal behavioral profile
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel stat-widget rose">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small fw-semibold">FRAUD INTERCEPTED</div>
+                            <h2 class="fw-bold mt-1 mb-0 font-mono text-danger" id="stat-fraud">0</h2>
+                        </div>
+                        <div class="stat-icon-wrapper rose">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2 d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-flag text-danger"></i> High risk probability flagged
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="glass-panel stat-widget amber">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="text-secondary small fw-semibold">TAMPER DEMONSTRATIONS</div>
+                            <h2 class="fw-bold mt-1 mb-0 font-mono text-warning" id="stat-tampered">0</h2>
+                        </div>
+                        <div class="stat-icon-wrapper amber">
+                            <i class="fa-solid fa-bug"></i>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2 d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-fingerprint text-warning"></i> Hash mismatch violations
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panes -->
+        <div class="tab-content" id="mainTabContent">
+
+            <!-- PANE 1: NEW TRANSACTION & AUDITING -->
+            <div class="tab-pane fade show active" id="pane-new" role="tabpanel">
+                <div class="row g-4">
+                    
+                    <!-- Left Form Column -->
+                    <div class="col-xl-7">
+                        <div class="glass-panel p-4 p-lg-5">
+                            
+                            <!-- Header -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h4 class="fw-bold text-white mb-1"><i class="fa-solid fa-money-bill-transfer text-cyan me-2"></i>Initiate Transaction Audit</h4>
+                                    <p class="text-secondary small mb-0">Evaluate transaction risk with Random Forest AI and register cryptographic SHA-256 fingerprint on Ethereum.</p>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill font-mono px-3" onclick="generateRandomRef()">
+                                    <i class="fa-solid fa-rotate me-1 text-cyan"></i> New Ref
+                                </button>
+                            </div>
+
+                            <!-- Interactive Preset Scenarios -->
+                            <div class="mb-4">
+                                <label class="small text-secondary fw-semibold mb-2 d-block">
+                                    <i class="fa-solid fa-flask-vial text-info me-1"></i> Quick Test Scenarios (Click to Load):
+                                </label>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="preset-card" onclick="applyPreset('legit')">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <i class="fa-solid fa-mug-hot text-success"></i>
+                                                <span class="small fw-bold text-white">Coffee POS Payment</span>
+                                            </div>
+                                            <div class="text-secondary" style="font-size: 0.72rem;">INR 450 • Normal Hours • Genuine</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="preset-card" onclick="applyPreset('drain')">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <i class="fa-solid fa-skull-crossbones text-danger"></i>
+                                                <span class="small fw-bold text-white">Midnight Drain Wire</span>
+                                            </div>
+                                            <div class="text-secondary" style="font-size: 0.72rem;">INR 92,000 • 3 AM • High Fraud</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="preset-card" onclick="applyPreset('suspicious')">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                                                <span class="small fw-bold text-white">Foreign ATM Cash-Out</span>
+                                            </div>
+                                            <div class="text-secondary" style="font-size: 0.72rem;">INR 28,500 • Off-peak • Suspicious</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transaction Form -->
+                            <form id="transactionForm" onsubmit="handleTransactionSubmit(event)">
+                                <div class="row g-3">
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">Transaction Reference ID</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text input-addon font-mono">#</span>
+                                            <input type="text" class="form-control custom-input font-mono fw-bold" id="txRef" readonly required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">Transaction Amount (INR)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text input-addon font-mono">₹</span>
+                                            <input type="number" step="0.01" min="1" class="form-control custom-input font-mono" id="txAmount" placeholder="25000" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">Payment Mechanism / Type</label>
+                                        <select class="form-select custom-input" id="txType" required>
+                                            <option value="PAYMENT">PAYMENT (Merchant POS / Retail)</option>
+                                            <option value="TRANSFER" selected>TRANSFER (Wire / P2P)</option>
+                                            <option value="CASH_OUT">CASH_OUT (ATM Withdrawal / Agent)</option>
+                                            <option value="DEBIT">DEBIT (Direct Debit)</option>
+                                            <option value="CASH_IN">CASH_IN (Deposit)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">
+                                            Transaction Time of Day: <span class="text-cyan font-mono fw-bold" id="hourLabel">14:00 HRS</span>
+                                        </label>
+                                        <input type="range" class="form-range custom-range mt-2" id="txHour" min="0" max="23" value="14" oninput="updateHourDisplay(this.value)">
+                                        <div class="d-flex justify-content-between text-secondary" style="font-size: 0.72rem;">
+                                            <span><i class="fa-solid fa-moon me-1"></i>00:00 (Midnight)</span>
+                                            <span><i class="fa-solid fa-sun me-1"></i>12:00</span>
+                                            <span>23:00</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">Sender Balance Before (INR)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text input-addon font-mono">₹</span>
+                                            <input type="number" step="0.01" min="0" class="form-control custom-input font-mono" id="txOrigBalance" placeholder="30000" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-secondary fw-semibold">Recipient Balance Before (INR)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text input-addon font-mono">₹</span>
+                                            <input type="number" step="0.01" min="0" class="form-control custom-input font-mono" id="txDestBalance" placeholder="500" required>
+                                        </div>
+                                    </div>
+
+                                    <!-- Anomaly Flags -->
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label small text-secondary fw-semibold mb-2">Behavioral & Geo Risk Indicators</label>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label class="flag-card d-flex align-items-center justify-content-between mb-0" for="flagLocation">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <i class="fa-solid fa-location-crosshairs text-warning fs-5"></i>
+                                                        <div>
+                                                            <div class="small fw-bold text-white">Unusual Geo-Location / VPN</div>
+                                                            <div class="text-secondary" style="font-size: 0.72rem;">Foreign IP address or geo-fence mismatch</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-check form-switch m-0">
+                                                        <input class="form-check-input" type="checkbox" id="flagLocation">
+                                                    </div>
+                                                </label>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="flag-card d-flex align-items-center justify-content-between mb-0" for="flagVelocity">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <i class="fa-solid fa-gauge-high text-warning fs-5"></i>
+                                                        <div>
+                                                            <div class="small fw-bold text-white">High Velocity Burst</div>
+                                                            <div class="text-secondary" style="font-size: 0.72rem;">Multiple consecutive rapid transactions</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-check form-switch m-0">
+                                                        <input class="form-check-input" type="checkbox" id="flagVelocity">
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit CTA -->
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-action-primary w-100 py-3" id="submitBtn">
+                                            <span class="spinner-border spinner-border-sm me-2 d-none" id="submitSpinner"></span>
+                                            <i class="fa-solid fa-fingerprint me-2"></i>Analyze with AI & Commit Hash to Blockchain
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <!-- Right Results Column -->
+                    <div class="col-xl-5">
+                        <div class="glass-panel p-4 p-lg-5 h-100 d-flex flex-column" id="resultsBox">
+                            
+                            <h4 class="fw-bold text-white mb-3 d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-chart-pie text-cyan me-2"></i>Audit Pipeline Output</span>
+                                <span class="badge bg-secondary-subtle text-secondary font-mono" style="font-size: 0.7rem;">LIVE OUTPUT</span>
+                            </h4>
+
+                            <!-- Empty State Placeholder -->
+                            <div id="resultsPlaceholder" class="text-center my-auto py-5">
+                                <div class="mb-3 text-secondary opacity-50">
+                                    <i class="fa-solid fa-shield-virus fa-4x"></i>
+                                </div>
+                                <h5 class="fw-bold text-white mb-2">No Transaction Evaluated Yet</h5>
+                                <p class="text-secondary small px-4 mb-0">Fill out the transaction attributes on the left or select a quick test preset to execute real-time AI fraud prediction and SHA-256 blockchain auditing.</p>
+                            </div>
+
+                            <!-- Populated Results Container -->
+                            <div id="resultsContent" class="d-none flex-grow-1 d-flex flex-column">
+                                
+                                <!-- Risk Gauge & Classification Banner -->
+                                <div class="text-center my-3">
+                                    <div class="gauge-container mb-2">
+                                        <svg class="gauge-svg" viewBox="0 0 160 160">
+                                            <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                                            <circle class="gauge-fill" id="gaugeCircle" cx="80" cy="80" r="70"></circle>
+                                        </svg>
+                                        <div class="gauge-center-text">
+                                            <div class="fs-2 fw-extrabold font-mono text-white" id="gaugePercentText">0%</div>
+                                            <div class="text-secondary small text-uppercase" style="font-size: 0.65rem;">AI Risk Score</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <div class="badge-risk" id="riskBadgeElement">
+                                            <i class="fa-solid fa-shield" id="riskBadgeIcon"></i>
+                                            <span id="riskCategoryText">ANALYZING</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contributing Factors -->
+                                <div class="mb-3">
+                                    <div class="small text-secondary fw-semibold mb-2">
+                                        <i class="fa-solid fa-list-check text-info me-1"></i> Key Contributing Risk Factors:
+                                    </div>
+                                    <div class="d-flex flex-column gap-1" id="factorListContainer">
+                                        <!-- Injected by JS -->
+                                    </div>
+                                </div>
+
+                                <hr class="border-secondary opacity-25 my-3">
+
+                                <!-- SHA-256 Fingerprint -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small text-secondary fw-semibold">
+                                            <i class="fa-solid fa-fingerprint text-cyan me-1"></i> Audit SHA-256 Hash:
+                                        </span>
+                                        <button class="copy-btn" onclick="copyResultHash()" title="Copy Hash">
+                                            <i class="fa-regular fa-copy me-1"></i> Copy
+                                        </button>
+                                    </div>
+                                    <div class="hash-card" id="resultHashBox">
+                                        -
+                                    </div>
+                                </div>
+
+                                <!-- Blockchain Confirmation Receipt -->
+                                <div class="glass-panel p-3 border border-info border-opacity-25 mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-white d-flex align-items-center gap-2">
+                                            <i class="fa-brands fa-ethereum text-cyan"></i> Blockchain Registration
+                                        </span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle" id="receiptStatus">CONFIRMED</span>
+                                    </div>
+                                    <div class="text-secondary small" style="font-size: 0.75rem;">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span>Tx Hash:</span>
+                                            <span class="font-mono text-white-50" id="receiptTxHash">-</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span>Network:</span>
+                                            <span class="text-white-50" id="receiptNetwork">-</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Contract:</span>
+                                            <span class="font-mono text-white-50" id="receiptContract">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-outline-info btn-sm rounded-pill px-3" onclick="switchToVerifyTab()">
+                                            <i class="fa-solid fa-microscope me-1"></i> Inspect in Tamper Lab
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PANE 2: AUDIT LEDGER -->
+            <div class="tab-pane fade" id="pane-ledger" role="tabpanel">
+                <div class="glass-panel p-4 p-lg-5">
+                    
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                        <div>
+                            <h4 class="fw-bold text-white mb-1"><i class="fa-solid fa-cubes text-cyan me-2"></i>Audit Transaction Ledger</h4>
+                            <p class="text-secondary small mb-0">Immutable records committed to the smart contract and verified against the local database.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill font-mono px-3" onclick="loadTransactions()">
+                                <i class="fa-solid fa-arrows-rotate me-1 text-cyan"></i> Refresh Ledger
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-modern align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Ref ID</th>
+                                    <th>Amount</th>
+                                    <th>Mechanism</th>
+                                    <th>AI Classification</th>
+                                    <th>Audit SHA-256 Digest</th>
+                                    <th>On-Chain Tx</th>
+                                    <th>Integrity State</th>
+                                    <th class="text-end">Verification</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledgerTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-secondary">Loading ledger entries...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PANE 3: TAMPER & VERIFICATION LAB -->
+            <div class="tab-pane fade" id="pane-verify" role="tabpanel">
+                <div class="glass-panel p-4 p-lg-5">
+                    
+                    <!-- Title Bar -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom border-secondary border-opacity-25">
+                        <div>
+                            <h4 class="fw-bold text-white mb-1"><i class="fa-solid fa-microscope text-cyan me-2"></i>Forensic Tamper & Verification Lab</h4>
+                            <p class="text-secondary small mb-0">Demonstrates blockchain immutability. Modify local database fields and observe how cryptographic hashing catches unauthorized alterations.</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="small text-secondary fw-semibold">Select Transaction:</span>
+                            <select class="form-select custom-input font-mono" id="verifyRefSelect" style="min-width: 240px;" onchange="loadVerificationDetails(this.value)">
+                                <option value="">-- Choose Transaction --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Visual Verification Result Banner -->
+                    <div class="audit-banner mb-4 d-none" id="verificationBanner">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="fs-1" id="verifyBannerIcon">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1 text-white" id="verifyBannerTitle">VERIFICATION STATUS</h5>
+                                <p class="mb-0 text-white-50 small" id="verifyBannerMsg">Details will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Grid -->
+                    <div class="row g-4">
+                        
+                        <!-- Left Side: Local DB State -->
+                        <div class="col-lg-6">
+                            <div class="glass-panel p-4 h-100 d-flex flex-column" style="background: rgba(14, 19, 31, 0.85); border-left: 4px solid var(--amber);">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-database text-warning fs-5"></i>
+                                        <span class="fw-bold text-white">Local Database State</span>
+                                    </div>
+                                    <span class="badge" id="dbTamperBadge">UNMODIFIED</span>
+                                </div>
+
+                                <p class="text-secondary small mb-3">Values retrieved directly from the local SQLite database (`fraud_audit.db`).</p>
+
+                                <div class="table-responsive small mb-3">
+                                    <table class="table table-sm table-borderless text-secondary mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary" style="width: 40%;">Transaction Ref:</td>
+                                                <td class="text-white font-mono fw-bold" id="labTxRef">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Amount:</td>
+                                                <td class="text-white font-mono fw-bold" id="labAmount">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Mechanism:</td>
+                                                <td class="text-white" id="labType">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">AI Prediction:</td>
+                                                <td class="text-white" id="labPrediction">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Risk Category:</td>
+                                                <td class="text-white" id="labCategory">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Risk Score:</td>
+                                                <td class="text-white font-mono" id="labScore">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Logged Timestamp:</td>
+                                                <td class="text-white-50" id="labTime">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="small text-secondary fw-semibold mb-1 d-block">
+                                        Current Recomputed SHA-256 (from DB values):
+                                    </label>
+                                    <div class="hash-card font-mono" id="labCurrentHash">-</div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex flex-wrap gap-2 mt-auto pt-3 border-top border-secondary border-opacity-25">
+                                    <button class="btn btn-warning btn-sm fw-bold px-3 rounded-pill" id="tamperBtn" onclick="triggerTamper()">
+                                        <i class="fa-solid fa-bolt me-1"></i> Deliberately Tamper Record in DB
+                                    </button>
+                                    <button class="btn btn-outline-light btn-sm fw-bold px-3 rounded-pill d-none" id="restoreBtn" onclick="triggerRestore()">
+                                        <i class="fa-solid fa-arrow-rotate-left me-1 text-success"></i> Restore Original DB Record
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Blockchain Smart Contract State -->
+                        <div class="col-lg-6">
+                            <div class="glass-panel p-4 h-100 d-flex flex-column" style="background: rgba(14, 19, 31, 0.85); border-left: 4px solid var(--cyan);">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-brands fa-ethereum text-cyan fs-5"></i>
+                                        <span class="fw-bold text-white">Blockchain Ledger State</span>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-mono">IMMUTABLE ON-CHAIN</span>
+                                </div>
+
+                                <p class="text-secondary small mb-3">Original fingerprint permanently recorded in the Solidity smart contract.</p>
+
+                                <div class="table-responsive small mb-3">
+                                    <table class="table table-sm table-borderless text-secondary mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-secondary" style="width: 40%;">Network:</td>
+                                                <td class="text-white" id="chainNetwork">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Smart Contract:</td>
+                                                <td class="text-white font-mono" style="font-size: 0.72rem;" id="chainContract">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">On-Chain Tx Hash:</td>
+                                                <td class="text-white font-mono" style="font-size: 0.72rem;" id="chainTxHash">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-secondary">Block Timestamp:</td>
+                                                <td class="text-white-50" id="chainTime">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="small text-secondary fw-semibold mb-1 d-block">
+                                        On-Chain Stored SHA-256 Hash:
+                                    </label>
+                                    <div class="hash-card font-mono text-cyan" id="labChainHash">-</div>
+                                </div>
+
+                                <div class="mt-auto pt-3 border-top border-secondary border-opacity-25">
+                                    <button class="btn btn-action-primary w-100 py-2" id="runVerifyBtn" onclick="triggerVerify()">
+                                        <i class="fa-solid fa-fingerprint me-2"></i>Execute Cryptographic Verification
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PANE 4: SMART CONTRACT & ARCHITECTURE -->
+            <div class="tab-pane fade" id="pane-contract" role="tabpanel">
+                <div class="row g-4">
+                    
+                    <div class="col-xl-6">
+                        <div class="glass-panel p-4 p-lg-5 h-100">
+                            <h4 class="fw-bold text-white mb-2"><i class="fa-solid fa-file-code text-cyan me-2"></i>Solidity Smart Contract</h4>
+                            <p class="text-secondary small mb-4">`TransactionAuditor.sol` stores immutable audit hashes on Ethereum Sepolia testnet without exposing confidential transaction data on-chain.</p>
+
+                            <div class="code-box">
+<pre class="mb-0"><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract TransactionAuditor {
+    struct AuditRecord {
+        string transactionRef;      // Unique business reference (e.g. TXN-1001)
+        string auditHash;           // SHA-256 hash of the canonical transaction audit record
+        uint256 timestamp;          // On-chain registration timestamp
+        address recordedBy;         // Address of auditor system
+        bool exists;
+    }
+
+    // Mapping from transaction reference to its immutable audit record
+    mapping(string => AuditRecord) private records;
+
+    // Events
+    event AuditRecordLogged(string indexed transactionRef, string auditHash, uint256 timestamp);
+
+    function logAuditRecord(string memory _txRef, string memory _auditHash) public {
+        require(!records[_txRef].exists, "Audit record already exists and is immutable");
+        records[_txRef] = AuditRecord(_txRef, _auditHash, block.timestamp, msg.sender, true);
+        emit AuditRecordLogged(_txRef, _auditHash, block.timestamp);
+    }
+
+    function verifyRecordHash(string memory _txRef, string memory _calcHash) 
+        external view returns (bool matches, string memory storedHash, uint256 timestamp) 
+    {
+        require(records[_txRef].exists, "Transaction reference not found on blockchain");
+        AuditRecord memory record = records[_txRef];
+        bool isMatching = keccak256(bytes(record.auditHash)) == keccak256(bytes(_calcHash));
+        return (isMatching, record.auditHash, record.timestamp);
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6">
+                        <div class="glass-panel p-4 p-lg-5 h-100">
+                            <h4 class="fw-bold text-white mb-2"><i class="fa-solid fa-diagram-project text-cyan me-2"></i>End-to-End System Pipeline</h4>
+                            <p class="text-secondary small mb-4">How AI risk analysis and Blockchain tamper auditing complement each other without leaking financial privacy.</p>
+
+                            <div class="ps-2">
+                                <div class="pipeline-step">
+                                    <div class="step-marker">1</div>
+                                    <h6 class="fw-bold text-white mb-1">Transaction Ingestion & Validation</h6>
+                                    <p class="text-secondary small mb-0">Financial attributes (amount, mechanism, balance ratios, time, anomaly flags) are validated by the Flask web application.</p>
+                                </div>
+
+                                <div class="pipeline-step">
+                                    <div class="step-marker">2</div>
+                                    <h6 class="fw-bold text-white mb-1">Random Forest AI Scoring</h6>
+                                    <p class="text-secondary small mb-0">Trained Machine Learning model estimates continuous fraud risk probability (0.0 - 1.0) and assigns category (Low, Medium, High Risk).</p>
+                                </div>
+
+                                <div class="pipeline-step">
+                                    <div class="step-marker">3</div>
+                                    <h6 class="fw-bold text-white mb-1">Canonical SHA-256 Hashing</h6>
+                                    <p class="text-secondary small mb-0">Deterministic string serialization generates a unique 256-bit cryptographic fingerprint. No customer PII or bank numbers are exposed.</p>
+                                </div>
+
+                                <div class="pipeline-step">
+                                    <div class="step-marker">4</div>
+                                    <h6 class="fw-bold text-white mb-1">Blockchain Audit Registration</h6>
+                                    <p class="text-secondary small mb-0">The hash is sent via Web3.py to the `TransactionAuditor` smart contract on Ethereum Sepolia, creating an immutable on-chain audit trail.</p>
+                                </div>
+
+                                <div class="pipeline-step">
+                                    <div class="step-marker">5</div>
+                                    <h6 class="fw-bold text-white mb-1">Tamper-Evident Verification</h6>
+                                    <p class="text-secondary small mb-0">Auditors re-generate the SHA-256 hash from database records and query the smart contract. Any local alteration causes a cryptographic mismatch detection.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Application JS -->
+    <script src="/static/js/app.js?v=2.0"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "roc_auc": 1.0,
+  "confusion_matrix": [
+    [
+      3475,
+      0
+    ],
+    [
+      0,
+      275
+    ]
+  ],
+  "total_training_samples": 11250,
+  "total_testing_samples": 3750,
+  "feature_importance": {
+    "amount": 0.3183,
+    "orig_balance": 0.116,
+    "dest_balance": 0.157,
+    "hour_of_day": 0.0023,
+    "risk_flag_unusual_location": 0.006,
+    "risk_flag_high_velocity": 0.0097,
+    "balance_orig_ratio": 0.3809,
+    "type_CASH_IN": 0.004,
+    "type_CASH_OUT": 0.001,
+    "type_DEBIT": 0.0004,
+    "type_PAYMENT": 0.0035,
+    "type_TRANSFER": 0.0009
+  }
+}
